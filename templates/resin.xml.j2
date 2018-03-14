@@ -14,7 +14,7 @@
 
     <logger name="com.caucho.java" level="config"/>
     <logger name="com.caucho.loader" level="config"/>
-{% for logger in resin_loggers %}
+{% for logger in ( resin_loggers | default([]) ) %}
     <logger name="logger.name" level="logger.level"/>
 {% endfor %}
 
