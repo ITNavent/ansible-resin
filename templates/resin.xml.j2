@@ -1,0 +1,73 @@
+<!--
+- Resin 4.0 configuration file.
+-
+- See conf/full.xml for more sample configuration, including load
+- balancing and database configuration.
+-->
+<resin xmlns="http://caucho.com/ns/resin"
+       xmlns:resin="urn:java:com.caucho.resin">
+
+    <log-handler name="" level="all" path="stdout:"
+                 timestamp="[%y-%m-%d %H:%M:%S.%s] {%{thread}} "/>
+
+    <logger name="com.caucho" level="info"/>
+
+    <logger name="com.caucho.java" level="config"/>
+    <logger name="com.caucho.loader" level="config"/>
+{% for logger in resin_loggers %}
+    <logger name="logger.name" level="logger.level"/>
+{% endfor %}
+
+
+    <class-loader>
+        <tree-loader path="${resin.root}/ext-lib"/>
+    </class-loader>
+
+    <resin:AdminAuthenticator>
+        <resin:import path="${__DIR__}/admin-users.xml" optional="true"/>
+    </resin:AdminAuthenticator>
+
+    <dependency-check-interval>600s</dependency-check-interval>
+
+    <system-property mail.smtp.host="127.0.0.1"/>
+    <system-property mail.smtp.port="25"/>
+
+    <cluster-default>
+        <resin:import path="${__DIR__}/app-default.xml"/>
+
+        <character-encoding>utf-8</character-encoding>
+        <development-mode-error-page/>
+
+        <resin:if test="${resin.professional}">
+            <cache memory-size="64M">
+                <rewrite-vary-as-private/>
+            </cache>
+        </resin:if>
+
+        <resin:DeployService/>
+
+        <resin:if test="${resin.professional}">
+            <resin:AdminServices/>
+        </resin:if>
+
+        <host-default>
+            <web-app-deploy path="webapps" versioning="true"/>
+
+            <web-app-default>
+                <prologue>
+                    <allow-servlet-el/>
+                </prologue>
+
+                <cache-mapping url-pattern="/" max-age="10m"/>
+                <cache-mapping url-pattern="*.gif" max-age="60s"/>
+                <cache-mapping url-pattern="*.jpg" max-age="60s"/>
+                <cache-mapping url-pattern="*.png" max-age="60s"/>
+                <cache-mapping url-pattern="*.css" max-age="60s"/>
+                <cache-mapping url-pattern="*.js" max-age="60s"/>
+            </web-app-default>
+        </host-default>
+    </cluster-default>
+
+    {{ resin_extra_config | default('') }}
+
+</resin>

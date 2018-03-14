@@ -1,0 +1,47 @@
+---
+
+- name: Download resin
+  get_url:
+    url: "{{ resin_url }}"
+    dest: "{{ resin_download_path }}/{{ resin_package }}"
+    mode: 0775
+
+- name: Create resin folder
+  file:
+    path: "{{ resin_realpath }}"
+    state: directory
+
+- name: Untar resin archive
+  command: "tar -xzf {{ resin_download_path }}/{{ resin_package }} -C {{ resin_realpath }} --strip-components=1"
+
+- name: Link resin folder
+  file:
+    path: "{{ resin_folder }}"
+    src: "{{ resin_realpath }}"
+    state: link
+
+- name: Create resin folders
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ resin_root_folder }}"
+    - "{{ resin_log_folder }}"
+
+- name: Copy resin.xml file
+  template:
+    src: resin.xml.j2
+    dest: "{{ resin_conf_file }}"
+    mode: 0775
+
+- name: Copy resin.service file
+  template:
+    src: resin.service.j2
+    dest: /etc/init.d/resin
+    mode: 0777
+
+- name: Install resin as a service
+  service:
+    enabled: yes
+    name: resin
+    state: stopped

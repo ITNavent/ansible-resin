@@ -1,0 +1,114 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          resin
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: The Resin Java Application Server
+### END INIT INFO
+
+JAVA_HOME="{{ resin_java_home }}"
+RESIN_HOME="{{ resin_folder }}"
+CONSOLE="{{ resin_log_folder }}/console.log"
+
+export JAVA_HOME RESIN_HOME
+
+JAVA="{{ resin_java_home }}/bin/java {{ resin_java_params }}"
+#
+# Set to the server id to start
+#
+{% if resin_server_id is defined %}
+SERVER="-server {{ resin_server_id }}"
+{% else %}
+#SERVER="-server app-a"
+{% endif %}
+#
+# -resin-root /var/resin        -- the main data directory
+#
+RESIN_ROOT="-root-directory {{ resin_root_folder }}"
+#
+# -conf /opt/resin/conf/resin.xml   -- the main configuration file
+#
+RESIN_CONF="-conf {{ resin_conf_file }}"
+#
+# -log-directory /var/log/resin -- the main log directory
+#
+RESIN_LOG="-log-directory {{ resin_log_folder }}"
+
+ARGS="$RESIN_CONF $RESIN_LOG $RESIN_ROOT $SERVER"
+
+if test -r /lib/lsb/init-functions; then
+  . /lib/lsb/init-functions
+fi
+
+type log_daemon_msg 1> /dev/null 2> /dev/null
+if test "$?" != 0; then
+  log_daemon_msg () {
+      if [ -z "$1" ]; then
+          return 1
+      fi
+
+      if [ -z "$2" ]; then
+          echo -n "$1:"
+          return
+      fi
+
+      echo -n "$1: $2"
+  }
+
+  log_end_msg () {
+      [ -z "$1" ] && return 1
+
+      if [ $1 -eq 0 ]; then
+        echo " ."
+      else
+        echo " failed!"
+      fi
+
+    return $1
+  }
+
+fi
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting resin"
+	if test -n "$USER"; then
+  	  su $USER -c """$JAVA -jar $RESIN_HOME/lib/resin.jar $ARGS start""" 1>> $CONSOLE 2>> $CONSOLE
+	else
+	    errors=`$JAVA -jar $RESIN_HOME/lib/resin.jar $ARGS start 2>&1`
+	    if [ $? != 0 ]; then
+		log_daemon_msg $errors
+	    fi
+	fi
+
+	log_end_msg $?
+	;;
+  stop)
+	log_daemon_msg "Stopping resin"
+	if test -n "$USER"; then
+  	  su $USER -c """$JAVA -jar $RESIN_HOME/lib/resin.jar $ARGS shutdown""" 1>> $CONSOLE 2>> $CONSOLE
+	else
+	    errors=`$JAVA -jar $RESIN_HOME/lib/resin.jar $ARGS shutdown 2>&1`
+	    if [ $? != 0 ]; then
+		log_daemon_msg $errors
+	    fi
+	fi
+
+	log_end_msg $?
+	;;
+  status)
+        $JAVA -jar $RESIN_HOME/lib/resin.jar $ARGS status
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|status|restart}"
+	exit 1
+esac
+
+exit 0
