@@ -28,12 +28,6 @@
     - "{{ resin_root_folder }}"
     - "{{ resin_log_folder }}"
 
-- name: Copy resin.xml file
-  template:
-    src: resin.xml.j2
-    dest: "{{ resin_conf_file }}"
-    mode: 0775
-
 - name: Copy resin.service file
   template:
     src: resin.service.j2
