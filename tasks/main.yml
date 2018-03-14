@@ -30,7 +30,7 @@
 
 - name: Copy resin.service file
   template:
-    src: resin.service.j2
+    src: resin.init.j2
     dest: /etc/init.d/resin
     mode: 0777
 
