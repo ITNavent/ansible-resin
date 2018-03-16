@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: 'Guido Navalesi'
+  description: 'Caucho Resin - Scale from a single server to millions of users with no outside dependencies.'
+  issue_tracker_url: 'https://github.com/ITNavent/ansible-resin/issues'
+  license: MIT
+  min_ansible_version: 1.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+  galaxy_tags:
+    - webserver
+    - java
+    - resin

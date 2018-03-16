@@ -1,0 +1,18 @@
+---
+
+
+resin_version: 4.0.55
+resin_package: "resin-{{ resin_version }}.tar.gz"
+
+resin_url: "http://caucho.com/download/{{ resin_package }}"
+resin_download_path: "/tmp"
+
+resin_path: "/opt"
+resin_realpath: "{{ resin_path }}/resin-{{ resin_version }}"
+resin_folder: "{{ resin_path }}/resin"
+resin_log_folder: "/var/log/resin"
+resin_root_folder: "/var/resin"
+resin_conf_file: "{{ resin_folder }}/conf/resin.xml"
+
+resin_java_home: "/usr/lib/jvm/java-6-openjdk-amd64"
+resin_java_params: "-d64"
